@@ -1,16 +1,14 @@
 === Mailster Mandrill Integration ===
 Contributors: everpress, revaxarts
-Tags: mandrill, mailster, delivery, deliverymethod, newsletter, email, revaxarts, mailsteresp
+Tags: mandrill, mailster, newsletter, mailsteresp
 Requires at least: 3.8
-Tested up to: 4.7.2
+Tested up to: 4.7.4
 Stable tag: 1.0
 License: GPLv2 or later
 Author: revaxarts
 Author URI: https://mailster.co
 
 == Description ==
-
-> This Plugin requires [Mailster Newsletter Plugin for WordPress](http://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster)
 
 Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Plugin for WordPress](http://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster).
 
@@ -29,5 +27,5 @@ Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Pl
 
 == Additional Info One ==
 
-This Plugin requires [Mailster Newsletter Plugin for WordPress](http://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster)
+> This Plugin requires [Mailster Newsletter Plugin for WordPress](http://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster)
 

@@ -291,7 +291,7 @@ class MailsterMandrill {
 							foreach ( $campaigns as $i => $campaign ) {
 
 								// only campaign which have been started maximum a day ago or the last 10 campaigns
-								if ( $campaign->timestamp -strtotime( $subscriberdata->created_at ) + 60 * 1440 < 0 || $i >= 10 ) { break;
+								if ( $campaign->timestamp - strtotime( $subscriberdata->created_at ) + 60 * 1440 < 0 || $i >= 10 ) { break;
 								}
 
 								if ( mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign->campaign_id, $subscriberdata->reason == 'hard-bounce' ) ) {
