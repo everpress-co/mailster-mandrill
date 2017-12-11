@@ -1,18 +1,18 @@
 <?php
 /*
 Plugin Name: Mailster Mandrill
-Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=Mailster+Mandrill+Integration
+Plugin URI: https://rxa.li/mailster?utm_campaign=wporg&utm_source=Mailster+Mandrill+Integration
 Description: Uses Mandrill to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.0 of the plugin
-Version: 1.0
-Author: EverPress
+Version: 1.1
+Author: revaxarts.com
 Author URI: https://mailster.co
 Text Domain: mailster-mandrill
 License: GPLv2 or later
 */
 
 
-define( 'MAILSTER_MANDRILL_VERSION', '1.0' );
+define( 'MAILSTER_MANDRILL_VERSION', '1.1' );
 define( 'MAILSTER_MANDRILL_REQUIRED_VERSION', '2.2' );
 define( 'MAILSTER_MANDRILL_ID', 'mandrill' );
 
@@ -121,6 +121,7 @@ class MailsterMandrill {
 	 */
 	public function subscriber_errors( $errors ) {
 		$errors[] = '[rejected]';
+		$errors[] = '[invalid]';
 		return $errors;
 	}
 
@@ -193,7 +194,7 @@ class MailsterMandrill {
 			} else {
 
 				$response = $response[0];
-				if ( $response->status == 'sent' || $response->status == 'queued' ) {
+				if ( $response->status == 'sent' || $response->status == 'queued'|| $response->status == 'scheduled' ) {
 					$mailobject->sent = true;
 				} else {
 					if ( in_array( $response->reject_reason, array( 'soft-bounce' ) ) ) {
@@ -291,7 +292,8 @@ class MailsterMandrill {
 							foreach ( $campaigns as $i => $campaign ) {
 
 								// only campaign which have been started maximum a day ago or the last 10 campaigns
-								if ( $campaign->timestamp - strtotime( $subscriberdata->created_at ) + 60 * 1440 < 0 || $i >= 10 ) { break;
+								if ( $campaign->timestamp - strtotime( $subscriberdata->created_at ) + 60 * 1440 < 0 || $i >= 10 ) {
+									break;
 								}
 
 								if ( mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign->campaign_id, $subscriberdata->reason == 'hard-bounce' ) ) {
@@ -714,7 +716,7 @@ class MailsterMandrill {
 	?>
 	<div id="message" class="error">
 		<p>
-		<strong>Mandrill integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_MANDRILL_REQUIRED_VERSION ?></strong>. Plugin deactivated.
+		<strong>Mandrill integration for Mailster</strong> requires the <a href="https://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_MANDRILL_REQUIRED_VERSION ?></strong>. Plugin deactivated.
 		</p>
 	</div>
 	<?php
@@ -724,8 +726,6 @@ class MailsterMandrill {
 
 	/**
 	 * activation function.
-	 *
-	 * activate function
 	 *
 	 * @access public
 	 * @return void
@@ -745,8 +745,6 @@ class MailsterMandrill {
 
 	/**
 	 * deactivation function.
-	 *
-	 * deactivate function
 	 *
 	 * @access public
 	 * @return void

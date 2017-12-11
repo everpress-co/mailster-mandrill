@@ -2,8 +2,8 @@
 Contributors: everpress, revaxarts
 Tags: mandrill, mailster, newsletter, mailsteresp
 Requires at least: 3.8
-Tested up to: 4.8
-Stable tag: 1.0
+Tested up to: 4.9
+Stable tag: 1.1
 License: GPLv2 or later
 Author: EverPress
 Author URI: https://mailster.co
@@ -21,6 +21,9 @@ Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Pl
 5. Send a testmail
 
 == Changelog ==
+
+= 1.1 =
+* added new subscriber error status
 
 = 1.0 =
 * initial release
