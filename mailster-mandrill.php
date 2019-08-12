@@ -13,7 +13,7 @@ License: GPLv2 or later
 
 
 define( 'MAILSTER_MANDRILL_VERSION', '1.1' );
-define( 'MAILSTER_MANDRILL_REQUIRED_VERSION', '2.2' );
+define( 'MAILSTER_MANDRILL_REQUIRED_VERSION', '2.4' );
 define( 'MAILSTER_MANDRILL_ID', 'mandrill' );
 
 
@@ -522,7 +522,7 @@ class MailsterMandrill {
 				</td>
 			</tr>
 		</table>
-		<div 
+		<div
 		<?php
 		if ( ! $verified ) {
 			echo ' style="display:none"'; }
@@ -539,7 +539,7 @@ class MailsterMandrill {
 				</td>
 			</tr>
 		</table>
-		<div class="mandrill-tab-smtp" 
+		<div class="mandrill-tab-smtp"
 		<?php
 		if ( mailster_option( MAILSTER_MANDRILL_ID . '_api' ) != 'smtp' ) {
 			echo ' style="display:none"'; }
