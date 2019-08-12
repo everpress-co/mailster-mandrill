@@ -1,8 +1,8 @@
 === Mailster Mandrill Integration ===
-Contributors: everpress, revaxarts
+Contributors: everpress
 Tags: mandrill, mailster, newsletter, mailsteresp
 Requires at least: 3.8
-Tested up to: 5.0
+Tested up to: 5.2
 Stable tag: 1.1
 License: GPLv2 or later
 Author: EverPress

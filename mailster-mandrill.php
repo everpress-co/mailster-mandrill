@@ -23,7 +23,7 @@ class MailsterMandrill {
 	public function __construct() {
 
 		$this->plugin_path = plugin_dir_path( __FILE__ );
-		$this->plugin_url = plugin_dir_url( __FILE__ );
+		$this->plugin_url  = plugin_dir_url( __FILE__ );
 
 		register_activation_hook( __FILE__, array( &$this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( &$this, 'deactivate' ) );
@@ -88,13 +88,13 @@ class MailsterMandrill {
 
 			$port = mailster_option( MAILSTER_MANDRILL_ID . '_port', 25 );
 
-			$mailobject->mailer->Mailer = 'smtp';
-			$mailobject->mailer->SMTPSecure = $port == 465 ? true : false;
-			$mailobject->mailer->Host = 'smtp.mandrillapp.com';
-			$mailobject->mailer->Port = $port;
-			$mailobject->mailer->SMTPAuth = true;
-			$mailobject->mailer->Username = mailster_option( MAILSTER_MANDRILL_ID . '_username' );
-			$mailobject->mailer->Password = mailster_option( MAILSTER_MANDRILL_ID . '_apikey' );
+			$mailobject->mailer->Mailer        = 'smtp';
+			$mailobject->mailer->SMTPSecure    = $port == 465 ? true : false;
+			$mailobject->mailer->Host          = 'smtp.mandrillapp.com';
+			$mailobject->mailer->Port          = $port;
+			$mailobject->mailer->SMTPAuth      = true;
+			$mailobject->mailer->Username      = mailster_option( MAILSTER_MANDRILL_ID . '_username' );
+			$mailobject->mailer->Password      = mailster_option( MAILSTER_MANDRILL_ID . '_apikey' );
 			$mailobject->mailer->SMTPKeepAlive = true;
 
 		} else {
@@ -176,15 +176,20 @@ class MailsterMandrill {
 
 			$timeout = 120;
 
-			$response = $this->do_call('messages/send-raw', array(
-				'raw_message' => $raw_message,
-				'from_email' => $mailobject->from,
-				'from_name' => $mailobject->from_name,
-				'to' => $mailobject->to,
-				'async' => defined( 'MAILSTER_DOING_CRON' ),
-				'ip_pool' => null,
-				'return_path_domain' => null,
-			), true, $timeout);
+			$response = $this->do_call(
+				'messages/send-raw',
+				array(
+					'raw_message'        => $raw_message,
+					'from_email'         => $mailobject->from,
+					'from_name'          => $mailobject->from_name,
+					'to'                 => $mailobject->to,
+					'async'              => defined( 'MAILSTER_DOING_CRON' ),
+					'ip_pool'            => null,
+					'return_path_domain' => null,
+				),
+				true,
+				$timeout
+			);
 
 			if ( is_wp_error( $response ) ) {
 
@@ -194,7 +199,7 @@ class MailsterMandrill {
 			} else {
 
 				$response = $response[0];
-				if ( $response->status == 'sent' || $response->status == 'queued'|| $response->status == 'scheduled' ) {
+				if ( $response->status == 'sent' || $response->status == 'queued' || $response->status == 'scheduled' ) {
 					$mailobject->sent = true;
 				} else {
 					if ( in_array( $response->reject_reason, array( 'soft-bounce' ) ) ) {
@@ -207,10 +212,14 @@ class MailsterMandrill {
 
 							$subscriber = mailster( 'subscribers' )->get_by_hash( $hash );
 
-							$deleteresponse = $this->do_call('rejects/delete', array(
-								'email' => $subscriber->email,
-								'subaccount' => mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ),
-							), true);
+							$deleteresponse = $this->do_call(
+								'rejects/delete',
+								array(
+									'email'      => $subscriber->email,
+									'subaccount' => mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ),
+								),
+								true
+							);
 
 							if ( isset( $deleteresponse->deleted ) && $deleteresponse->deleted ) {
 
@@ -297,29 +306,40 @@ class MailsterMandrill {
 								}
 
 								if ( mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign->campaign_id, $subscriberdata->reason == 'hard-bounce' ) ) {
-									$response = $this->do_call('rejects/delete', array(
-										'email' => $subscriberdata->email,
-										'subaccount' => $subaccount,
-									), true);
-									$reseted = isset( $response->deleted ) && $response->deleted;
+									$response = $this->do_call(
+										'rejects/delete',
+										array(
+											'email'      => $subscriberdata->email,
+											'subaccount' => $subaccount,
+										),
+										true
+									);
+									$reseted  = isset( $response->deleted ) && $response->deleted;
 								}
 							}
 							break;
 					}
 
 					if ( ! $reseted ) {
-						$response = $this->do_call('rejects/delete', array(
-							'email' => $subscriberdata->email,
-							'subaccount' => $subaccount,
-						), true);
-						$reseted = isset( $response->deleted ) && $response->deleted;
+						$response = $this->do_call(
+							'rejects/delete',
+							array(
+								'email'      => $subscriberdata->email,
+								'subaccount' => $subaccount,
+							),
+							true
+						);
+						$reseted  = isset( $response->deleted ) && $response->deleted;
 					}
 				} else {
 					// remove user from the list
-					$response = $this->do_call('rejects/delete', array(
-						'email' => $subscriberdata->email,
-						'subaccount' => $subaccount,
-					));
+					$response = $this->do_call(
+						'rejects/delete',
+						array(
+							'email'      => $subscriberdata->email,
+							'subaccount' => $subaccount,
+						)
+					);
 					$count++;
 				}
 			}
@@ -347,15 +367,18 @@ class MailsterMandrill {
 		$url = 'http://mandrillapp.com/api/1.0/' . $path . '.json';
 		if ( is_bool( $data ) ) {
 			$bodyonly = $data;
-			$data = array();
+			$data     = array();
 		}
 		$data = wp_parse_args( $data, array( 'key' => mailster_option( MAILSTER_MANDRILL_ID . '_apikey' ) ) );
 
-		$response = wp_remote_post( $url, array(
-			'timeout' => $timeout,
-			'sslverify' => false,
-			'body' => $data,
-		));
+		$response = wp_remote_post(
+			$url,
+			array(
+				'timeout'   => $timeout,
+				'sslverify' => false,
+				'body'      => $data,
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
 
@@ -375,9 +398,9 @@ class MailsterMandrill {
 		}
 
 		return (object) array(
-			'code' => $code,
+			'code'    => $code,
 			'headers' => wp_remote_retrieve_headers( $response ),
-			'body' => $body,
+			'body'    => $body,
 		);
 
 	}
@@ -396,33 +419,43 @@ class MailsterMandrill {
 	 */
 	public function getquota( $save = true, $apikey = null, $subaccount = null ) {
 
-		$apikey = ( ! is_null( $apikey )) ? $apikey : mailster_option( MAILSTER_MANDRILL_ID . '_apikey' );
-		$subaccount = ( ! is_null( $subaccount )) ? $subaccount : mailster_option( MAILSTER_MANDRILL_ID . '_subaccount', null );
+		$apikey     = ( ! is_null( $apikey ) ) ? $apikey : mailster_option( MAILSTER_MANDRILL_ID . '_apikey' );
+		$subaccount = ( ! is_null( $subaccount ) ) ? $subaccount : mailster_option( MAILSTER_MANDRILL_ID . '_subaccount', null );
 
 		$response = $this->do_call( 'users/info', array( 'key' => $apikey ), true );
 
-		if ( is_wp_error( $response ) ) { return $response;
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
 
 		$limits = array(
-			'daily' => $response->hourly_quota * 24,
-			'hourly' => $response->hourly_quota,
-			'sent' => 0,
+			'daily'      => $response->hourly_quota * 24,
+			'hourly'     => $response->hourly_quota,
+			'sent'       => 0,
 			'sent_total' => $response->stats->all_time->sent,
-			'backlog' => $response->backlog,
+			'backlog'    => $response->backlog,
 		);
 
 		// if a subaccount is use change the sent value but keep the quota of the main account if it's less
 		if ( $subaccount ) {
-			$response = $this->do_call( 'subaccounts/info', array( 'key' => $apikey, 'id' => $subaccount ), true );
-			if ( is_wp_error( $response ) ) { return $response;
+			$response = $this->do_call(
+				'subaccounts/info',
+				array(
+					'key' => $apikey,
+					'id'  => $subaccount,
+				),
+				true
+			);
+			if ( is_wp_error( $response ) ) {
+				return $response;
 			}
 			$limits['hourly'] = min( $limits['hourly'], $response->hourly_quota );
-			$limits['sent'] = $response->sent_hourly;
-			$limits['daily'] = $response->hourly_quota * 24;
+			$limits['sent']   = $response->sent_hourly;
+			$limits['daily']  = $response->hourly_quota * 24;
 		}
 
-		if ( $save ) { $this->update_limits( $limits );
+		if ( $save ) {
+			$this->update_limits( $limits );
 		}
 
 		return $limits;
@@ -459,7 +492,7 @@ class MailsterMandrill {
 
 		$verified = mailster_option( MAILSTER_MANDRILL_ID . '_verified' );
 
-	?>
+		?>
 		<table class="form-table">
 			<?php if ( ! $verified ) : ?>
 			<tr valign="top">
@@ -469,46 +502,56 @@ class MailsterMandrill {
 			</tr>
 			<?php endif; ?>
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Mandrill Username' , 'mailster-mandrill' ) ?></th>
-				<td><input type="text" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_username]" value="<?php echo esc_attr( mailster_option( MAILSTER_MANDRILL_ID . '_username' ) ); ?>" class="regular-text"></td>
+				<th scope="row"><?php _e( 'Mandrill Username', 'mailster-mandrill' ); ?></th>
+				<td><input type="text" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_username]" value="<?php echo esc_attr( mailster_option( MAILSTER_MANDRILL_ID . '_username' ) ); ?>" class="regular-text"></td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Mandrill API Key' , 'mailster-mandrill' ) ?></th>
-				<td><input type="password" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_apikey]" value="<?php echo esc_attr( mailster_option( MAILSTER_MANDRILL_ID . '_apikey' ) ); ?>" class="regular-text" placeholder="xxxxxxxxxxxxxxxxxxxxxx" autocomplete="new-password"></td>
+				<th scope="row"><?php _e( 'Mandrill API Key', 'mailster-mandrill' ); ?></th>
+				<td><input type="password" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_apikey]" value="<?php echo esc_attr( mailster_option( MAILSTER_MANDRILL_ID . '_apikey' ) ); ?>" class="regular-text" placeholder="xxxxxxxxxxxxxxxxxxxxxx" autocomplete="new-password"></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row">&nbsp;</th>
 				<td>
 					<?php if ( $verified ) : ?>
-					<span style="color:#3AB61B">&#10004;</span> q<?php esc_html_e( 'Your credentials are ok!', 'mailster-mandrill' ) ?>
+					<span style="color:#3AB61B">&#10004;</span> q<?php esc_html_e( 'Your credentials are ok!', 'mailster-mandrill' ); ?>
 					<?php else : ?>
-					<span style="color:#D54E21">&#10006;</span> <?php esc_html_e( 'Your credentials are WRONG!', 'mailster-mandrill' ) ?>
+					<span style="color:#D54E21">&#10006;</span> <?php esc_html_e( 'Your credentials are WRONG!', 'mailster-mandrill' ); ?>
 					<?php endif; ?>
 
-					<input type="hidden" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_verified]" value="<?php echo $verified ?>">
+					<input type="hidden" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_verified]" value="<?php echo $verified; ?>">
 				</td>
 			</tr>
 		</table>
-		<div <?php if ( ! $verified ) { echo ' style="display:none"'; } ?>>
+		<div 
+		<?php
+		if ( ! $verified ) {
+			echo ' style="display:none"'; }
+		?>
+		>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Send Emails with' , 'mailster-mandrill' ) ?></th>
+				<th scope="row"><?php _e( 'Send Emails with', 'mailster-mandrill' ); ?></th>
 				<td>
-				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_api]" class="mailster-mandrill-api">
-					<option value="web" <?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_api' ), 'web' )?>>WEB API</option>
-					<option value="smtp" <?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_api' ), 'smtp' )?>>SMTP API</option>
+				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_api]" class="mailster-mandrill-api">
+					<option value="web" <?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_api' ), 'web' ); ?>>WEB API</option>
+					<option value="smtp" <?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_api' ), 'smtp' ); ?>>SMTP API</option>
 				</select>
 				</td>
 			</tr>
 		</table>
-		<div class="mandrill-tab-smtp" <?php if ( mailster_option( MAILSTER_MANDRILL_ID . '_api' ) != 'smtp' ) { echo ' style="display:none"'; } ?>>
+		<div class="mandrill-tab-smtp" 
+		<?php
+		if ( mailster_option( MAILSTER_MANDRILL_ID . '_api' ) != 'smtp' ) {
+			echo ' style="display:none"'; }
+		?>
+		>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><?php _e( 'SMTP Port' , 'mailster-mandrill' ) ?></th>
+				<th scope="row"><?php _e( 'SMTP Port', 'mailster-mandrill' ); ?></th>
 				<td>
-				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_port]">
+				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_port]">
 					<option value="25"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_port' ), 25 ); ?>>25</option>
-					<option value="465"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_port' ), 465 ); ?>>465 <?php _e( 'with' , 'mailster-mandrill' ) ?> SSL</option>
+					<option value="465"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_port' ), 465 ); ?>>465 <?php _e( 'with', 'mailster-mandrill' ); ?> SSL</option>
 					<option value="587"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_port' ), 587 ); ?>>587</option>
 					<option value="2525"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_port' ), 2525 ); ?>>2525</option>
 				</select></td>
@@ -518,14 +561,14 @@ class MailsterMandrill {
 		<?php if ( mailster_option( 'deliverymethod' ) == MAILSTER_MANDRILL_ID ) : ?>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Use subaccount' , 'mailster-mandrill' ) ?></th>
+				<th scope="row"><?php _e( 'Use subaccount', 'mailster-mandrill' ); ?></th>
 				<td>
-				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_subaccount]">
+				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_subaccount]">
 					<option value=""<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ), 0 ); ?>><?php _e( 'none', 'mailster-mandrill' ); ?></option>
 				<?php
 						$subaccounts = $this->get_subaccounts();
 				foreach ( $subaccounts as $account ) {
-					echo '<option value="' . $account->id . '" ' . selected( mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ), $account->id, true ) . '>' . $account->name . ($account->status != 'active' ? ' (' . $account->status . ')' : '') . '</option>';
+					echo '<option value="' . $account->id . '" ' . selected( mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ), $account->id, true ) . '>' . $account->name . ( $account->status != 'active' ? ' (' . $account->status . ')' : '' ) . '</option>';
 				}
 				?>
 				</select> <span class="description"><?php echo sprintf( __( 'Create new subaccounts on %s', 'mailster-mandrill' ), '<a href="https://mandrillapp.com/subaccounts" class="external">' . __( 'your Mandrill Dashboard', 'mailster-mandrill' ) . '</a>' ); ?></span></td>
@@ -534,9 +577,9 @@ class MailsterMandrill {
 		<?php endif; ?>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Track in Mandrill' , 'mailster-mandrill' ) ?></th>
+				<th scope="row"><?php _e( 'Track in Mandrill', 'mailster-mandrill' ); ?></th>
 				<td>
-				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_track]">
+				<select name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_track]">
 					<option value="0"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_track' ), 0 ); ?>><?php _e( 'Account defaults', 'mailster-mandrill' ); ?></option>
 					<option value="none"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_track' ), 'none' ); ?>><?php _e( 'none', 'mailster-mandrill' ); ?></option>
 					<option value="opens"<?php selected( mailster_option( MAILSTER_MANDRILL_ID . '_track' ), 'opens' ); ?>><?php _e( 'opens', 'mailster-mandrill' ); ?></option>
@@ -545,20 +588,20 @@ class MailsterMandrill {
 				</select> <span class="description"><?php _e( 'Track opens and clicks in Mandrill as well', 'mailster-mandrill' ); ?></span></td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Update Limits' , 'mailster-mandrill' ) ?></th>
-				<td><label><input type="hidden" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_autoupdate]" value=""><input type="checkbox" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_autoupdate]" value="1" <?php checked( mailster_option( MAILSTER_MANDRILL_ID . '_autoupdate' ), true )?>> <?php _e( 'auto update send limits (recommended)', 'mailster-mandrill' ); ?> </label></td>
+				<th scope="row"><?php _e( 'Update Limits', 'mailster-mandrill' ); ?></th>
+				<td><label><input type="hidden" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_autoupdate]" value=""><input type="checkbox" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_autoupdate]" value="1" <?php checked( mailster_option( MAILSTER_MANDRILL_ID . '_autoupdate' ), true ); ?>> <?php _e( 'auto update send limits (recommended)', 'mailster-mandrill' ); ?> </label></td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><?php _e( 'max emails at once' , 'mailster-mandrill' ) ?></th>
-				<td><input type="text" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_send_at_once]" value="<?php echo esc_attr( mailster_option( MAILSTER_MANDRILL_ID . '_send_at_once', 100 ) ); ?>" class="small-text">
+				<th scope="row"><?php _e( 'max emails at once', 'mailster-mandrill' ); ?></th>
+				<td><input type="text" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_send_at_once]" value="<?php echo esc_attr( mailster_option( MAILSTER_MANDRILL_ID . '_send_at_once', 100 ) ); ?>" class="small-text">
 				<span class="description"><?php _e( 'define the most highest value for auto calculated send value to prevent server timeouts', 'mailster-mandrill' ); ?></span>
 				</td>
 			</tr>
 		</table>
-		<input type="hidden" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID ?>_backlog]" value="<?php echo mailster_option( MAILSTER_MANDRILL_ID . '_backlog', 0 ) ?>">
+		<input type="hidden" name="mailster_options[<?php echo MAILSTER_MANDRILL_ID; ?>_backlog]" value="<?php echo mailster_option( MAILSTER_MANDRILL_ID . '_backlog', 0 ); ?>">
 		</div>
 
-	<?php
+		<?php
 
 	}
 
@@ -573,10 +616,10 @@ class MailsterMandrill {
 	 * @return void
 	 */
 	public function section_tab_bounce() {
-	?>
+		?>
 		<div class="error inline"><p><strong><?php _e( 'Bouncing is handled by Mandrill so all your settings will be ignored', 'mailster-mandrill' ); ?></strong></p></div>
 
-	<?php
+		<?php
 	}
 
 
@@ -597,7 +640,7 @@ class MailsterMandrill {
 		// only if deleivermethod is mandrill
 		if ( $options['deliverymethod'] == MAILSTER_MANDRILL_ID ) {
 
-			if ( ($options[ MAILSTER_MANDRILL_ID . '_username' ] && $options[ MAILSTER_MANDRILL_ID . '_apikey' ]) ) {
+			if ( ( $options[ MAILSTER_MANDRILL_ID . '_username' ] && $options[ MAILSTER_MANDRILL_ID . '_apikey' ] ) ) {
 
 				$limits = $this->getquota( false, $options[ MAILSTER_MANDRILL_ID . '_apikey' ], $options[ MAILSTER_MANDRILL_ID . '_subaccount' ] );
 
@@ -614,10 +657,10 @@ class MailsterMandrill {
 
 						$this->update_limits( $limits, false );
 
-						$options['send_limit'] = $limits['hourly'];
-						$options['send_period'] = 1;
-						$options['send_delay'] = 0;
-						$options['send_at_once'] = min( $options[ MAILSTER_MANDRILL_ID . '_send_at_once' ], max( 1, floor( $limits['daily'] / (1440 / $options['interval']) ) ) );
+						$options['send_limit']   = $limits['hourly'];
+						$options['send_period']  = 1;
+						$options['send_delay']   = 0;
+						$options['send_at_once'] = min( $options[ MAILSTER_MANDRILL_ID . '_send_at_once' ], max( 1, floor( $limits['daily'] / ( 1440 / $options['interval'] ) ) ) );
 
 						$options[ MAILSTER_MANDRILL_ID . '_backlog' ] = $limits['backlog'];
 
@@ -662,7 +705,7 @@ class MailsterMandrill {
 	 */
 	public function get_subaccounts() {
 
-		if ( ! ($accounts = get_transient( 'mailster_mandrill_subaccounts' )) ) {
+		if ( ! ( $accounts = get_transient( 'mailster_mandrill_subaccounts' ) ) ) {
 			$accounts = $this->do_call( 'subaccounts/list', true );
 			if ( ! is_wp_error( $accounts ) ) {
 				set_transient( 'mailster_mandrill_subaccounts', $accounts, 3600 );
@@ -689,7 +732,7 @@ class MailsterMandrill {
 			mailster_update_option( 'send_limit', $limits['hourly'] );
 			mailster_update_option( 'send_period', 1 );
 			mailster_update_option( 'send_delay', 0 );
-			mailster_update_option( 'send_at_once', min( mailster_option( MAILSTER_MANDRILL_ID . '_send_at_once', 100 ),max( 1, floor( $limits['daily'] / (1440 / mailster_option( 'interval' )) ) ) ) );
+			mailster_update_option( 'send_at_once', min( mailster_option( MAILSTER_MANDRILL_ID . '_send_at_once', 100 ), max( 1, floor( $limits['daily'] / ( 1440 / mailster_option( 'interval' ) ) ) ) ) );
 			mailster_update_option( MAILSTER_MANDRILL_ID . '_backlog', $limits['backlog'] );
 		}
 		($limits['backlog'])
@@ -713,13 +756,13 @@ class MailsterMandrill {
 	 * @return void
 	 */
 	public function notice() {
-	?>
+		?>
 	<div id="message" class="error">
 		<p>
-		<strong>Mandrill integration for Mailster</strong> requires the <a href="https://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_MANDRILL_REQUIRED_VERSION ?></strong>. Plugin deactivated.
+		<strong>Mandrill integration for Mailster</strong> requires the <a href="https://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_MANDRILL_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
 		</p>
 	</div>
-	<?php
+		<?php
 	}
 
 
