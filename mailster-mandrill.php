@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Mailster Mandrill
-Plugin URI: https://rxa.li/mailster?utm_campaign=wporg&utm_source=Mailster+Mandrill+Integration
+Plugin URI: https://evp.to/mailster?utm_campaign=wporg&utm_source=Mailster+Mandrill+Integration
 Description: Uses Mandrill to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.0 of the plugin
 Version: 1.1
@@ -759,7 +759,7 @@ class MailsterMandrill {
 		?>
 	<div id="message" class="error">
 		<p>
-		<strong>Mandrill integration for Mailster</strong> requires the <a href="https://rxa.li/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_MANDRILL_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
+		<strong>Mandrill integration for Mailster</strong> requires the <a href="https://evp.to/mailster?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_MANDRILL_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
 		</p>
 	</div>
 		<?php
