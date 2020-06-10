@@ -5,7 +5,7 @@ Plugin URI: https://evp.to/mailster?utm_campaign=wporg&utm_source=Mailster+Mandr
 Description: Uses Mandrill to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.0 of the plugin
 Version: 1.1
-Author: revaxarts.com
+Author: EverPress
 Author URI: https://mailster.co
 Text Domain: mailster-mandrill
 License: GPLv2 or later
