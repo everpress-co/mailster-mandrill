@@ -777,7 +777,7 @@ class MailsterMandrill {
 
 		if ( function_exists( 'mailster' ) ) {
 
-			mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-mandrill' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', false, 'delivery_method' );
+			mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-mandrill' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', 360, 'delivery_method' );
 			if ( ! wp_next_scheduled( 'mailster_mandrill_cron' ) ) {
 				wp_schedule_event( time(), 'hourly', 'mailster_mandrill_cron' );
 			}
@@ -798,7 +798,7 @@ class MailsterMandrill {
 
 			if ( mailster_option( 'deliverymethod' ) == MAILSTER_MANDRILL_ID ) {
 				mailster_update_option( 'deliverymethod', 'simple' );
-				mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-mandrill' ), '<a href="options-general.php?page=newsletter-settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', false, 'delivery_method' );
+				mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-mandrill' ), '<a href="options-general.php?page=newsletter-settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', 360, 'delivery_method' );
 			}
 
 			if ( $timestamp = wp_next_scheduled( 'mailster_mandrill_cron' ) ) {
