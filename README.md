@@ -1,6 +1,6 @@
 # Mailster Mandrill Integration
 
-Contributors: everpress  
+Contributors: everpress, xaverb  
 Tags: mandrill, mailster, newsletter, mailsteresp  
 Requires at least: 3.8  
 Tested up to: 6.0  
@@ -9,7 +9,7 @@ License: GPLv2 or later
 
 ## Description
 
-Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster&utm_medium=readme).
+Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=readme&utm_term=Mandrill).
 
 ## Installation
 
@@ -31,4 +31,4 @@ Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Pl
 
 ## Additional Info
 
-> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=Mandrill+integration+for+Mailster&utm_medium=readme)
+> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=readme&utm_term=Mandrill)
