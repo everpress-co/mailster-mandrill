@@ -1,10 +1,10 @@
 # Mailster Mandrill Integration
 
-Contributors: everpress, xaverb  
+Contributors: everpress, mailster, xaverb  
 Tags: mandrill, mailster, newsletter, mailsteresp  
-Requires at least: 3.8  
-Tested up to: 6.0  
-Stable tag: 1.1  
+Requires at least: 6.0  
+Tested up to: 6.5  
+Stable tag: 1.1.0  
 License: GPLv2 or later
 
 ## Description
@@ -21,13 +21,13 @@ Uses Mandrill App by Mailchimp to deliver emails for the [Mailster Newsletter Pl
 
 ## Changelog
 
-### 1.1
+### 1.1.0
 
--   added new subscriber error status
+- added new subscriber error status
 
 ### 1.0
 
--   initial release
+- initial release
 
 ## Additional Info
 

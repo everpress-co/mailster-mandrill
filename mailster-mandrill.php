@@ -1,10 +1,11 @@
 <?php
 /*
 Plugin Name: Mailster Mandrill
+Requires Plugins: mailster
 Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=plugin&utm_term=Mandrill
 Description: Uses Mandrill to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.0 of the plugin
-Version: 1.1
+Version: 1.1.0
 Author: EverPress
 Author URI: https://mailster.co
 Text Domain: mailster-mandrill
@@ -12,12 +13,15 @@ License: GPLv2 or later
 */
 
 
-define( 'MAILSTER_MANDRILL_VERSION', '1.1' );
-define( 'MAILSTER_MANDRILL_REQUIRED_VERSION', '2.4' );
+define( 'MAILSTER_MANDRILL_VERSION', '1.1.0' );
+define( 'MAILSTER_MANDRILL_REQUIRED_VERSION', '4.0' );
 define( 'MAILSTER_MANDRILL_ID', 'mandrill' );
 
 
 class MailsterMandrill {
+
+	private $plugin_path;
+	private $plugin_url;
 
 
 	public function __construct() {
@@ -69,7 +73,6 @@ class MailsterMandrill {
 			add_action( 'mailster_mandrill_cron', array( &$this, 'getquota' ) );
 
 		}
-
 	}
 
 
@@ -103,10 +106,9 @@ class MailsterMandrill {
 			$mailobject->dkim = false;
 		}
 
-		( ! defined( 'MAILSTER_DOING_CRON' ) && mailster_option( MAILSTER_MANDRILL_ID . '_backlog' ))
+		( ! defined( 'MAILSTER_DOING_CRON' ) && mailster_option( MAILSTER_MANDRILL_ID . '_backlog' ) )
 			? mailster_notice( sprintf( __( 'You have %1$s mails in your Backlog! %1$s', 'mailster-mandrill' ), '<strong>' . mailster_option( MAILSTER_MANDRILL_ID . '_backlog' ) . '</strong>', '<a href="http://eepurl.com/rvxGP" class="external">' . __( 'What is this?', 'mailster-mandrill' ) . '</a>' ), 'error', true, 'mandrill_backlog' )
 			: mailster_remove_notice( 'mandrill_backlog' );
-
 	}
 
 
@@ -135,8 +137,6 @@ class MailsterMandrill {
 	 * @param mixed $mailobject
 	 * @return void
 	 */
-
-
 	public function presend( $mailobject ) {
 
 		// use pre_send from the main class
@@ -149,7 +149,6 @@ class MailsterMandrill {
 		if ( $subaccount = mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ) ) {
 			$mailobject->mailer->addCustomHeader( 'X-MC-Subaccount', $subaccount );
 		}
-
 	}
 
 
@@ -201,49 +200,46 @@ class MailsterMandrill {
 				$response = $response[0];
 				if ( $response->status == 'sent' || $response->status == 'queued' || $response->status == 'scheduled' ) {
 					$mailobject->sent = true;
-				} else {
-					if ( in_array( $response->reject_reason, array( 'soft-bounce' ) ) ) {
+				} elseif ( in_array( $response->reject_reason, array( 'soft-bounce' ) ) ) {
 
 						// softbounced already so
 						$hash = $mailobject->headers['X-Mailster'];
 						$camp = $mailobject->headers['X-Mailster-Campaign'];
 
-						if ( $camp && $hash ) {
+					if ( $camp && $hash ) {
 
-							$subscriber = mailster( 'subscribers' )->get_by_hash( $hash );
+						$subscriber = mailster( 'subscribers' )->get_by_hash( $hash );
 
-							$deleteresponse = $this->do_call(
-								'rejects/delete',
-								array(
-									'email'      => $subscriber->email,
-									'subaccount' => mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ),
-								),
-								true
-							);
+						$deleteresponse = $this->do_call(
+							'rejects/delete',
+							array(
+								'email'      => $subscriber->email,
+								'subaccount' => mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ),
+							),
+							true
+						);
 
-							if ( isset( $deleteresponse->deleted ) && $deleteresponse->deleted ) {
+						if ( isset( $deleteresponse->deleted ) && $deleteresponse->deleted ) {
 
-								$this->dosend( $mailobject );
+							$this->dosend( $mailobject );
 
-							} else {
-
-								$mailobject->sent = true;
-
-							}
 						} else {
 
-							$mailobject->set_error( '[' . $response->status . '] ' . $response->reject_reason );
-							$mailobject->sent = false;
+							$mailobject->sent = true;
 
 						}
 					} else {
+
 						$mailobject->set_error( '[' . $response->status . '] ' . $response->reject_reason );
 						$mailobject->sent = false;
+
 					}
+				} else {
+					$mailobject->set_error( '[' . $response->status . '] ' . $response->reject_reason );
+					$mailobject->sent = false;
 				}
 			}
 		}
-
 	}
 
 
@@ -340,11 +336,10 @@ class MailsterMandrill {
 							'subaccount' => $subaccount,
 						)
 					);
-					$count++;
+					++$count;
 				}
 			}
 		}
-
 	}
 
 
@@ -402,7 +397,6 @@ class MailsterMandrill {
 			'headers' => wp_remote_retrieve_headers( $response ),
 			'body'    => $body,
 		);
-
 	}
 
 
@@ -459,7 +453,6 @@ class MailsterMandrill {
 		}
 
 		return $limits;
-
 	}
 
 
@@ -497,7 +490,7 @@ class MailsterMandrill {
 			<?php if ( ! $verified ) : ?>
 			<tr valign="top">
 				<th scope="row">&nbsp;</th>
-				<td><p class="description"><?php echo sprintf( __( 'You need a %s to use this service!', 'mailster-mandrill' ), '<a href="https://mandrill.com/signup/" class="external">Mandrill Account</a>' ); ?></p>
+				<td><p class="description"><?php printf( __( 'You need a %s to use this service!', 'mailster-mandrill' ), '<a href="https://mandrill.com/signup/" class="external">Mandrill Account</a>' ); ?></p>
 				</td>
 			</tr>
 			<?php endif; ?>
@@ -571,7 +564,7 @@ class MailsterMandrill {
 					echo '<option value="' . $account->id . '" ' . selected( mailster_option( MAILSTER_MANDRILL_ID . '_subaccount' ), $account->id, true ) . '>' . $account->name . ( $account->status != 'active' ? ' (' . $account->status . ')' : '' ) . '</option>';
 				}
 				?>
-				</select> <span class="description"><?php echo sprintf( __( 'Create new subaccounts on %s', 'mailster-mandrill' ), '<a href="https://mandrillapp.com/subaccounts" class="external">' . __( 'your Mandrill Dashboard', 'mailster-mandrill' ) . '</a>' ); ?></span></td>
+				</select> <span class="description"><?php printf( __( 'Create new subaccounts on %s', 'mailster-mandrill' ), '<a href="https://mandrillapp.com/subaccounts" class="external">' . __( 'your Mandrill Dashboard', 'mailster-mandrill' ) . '</a>' ); ?></span></td>
 			</tr>
 		</table>
 		<?php endif; ?>
@@ -602,7 +595,6 @@ class MailsterMandrill {
 		</div>
 
 		<?php
-
 	}
 
 
@@ -715,7 +707,6 @@ class MailsterMandrill {
 		}
 
 		return $accounts;
-
 	}
 
 
@@ -735,7 +726,7 @@ class MailsterMandrill {
 			mailster_update_option( 'send_at_once', min( mailster_option( MAILSTER_MANDRILL_ID . '_send_at_once', 100 ), max( 1, floor( $limits['daily'] / ( 1440 / mailster_option( 'interval' ) ) ) ) ) );
 			mailster_update_option( MAILSTER_MANDRILL_ID . '_backlog', $limits['backlog'] );
 		}
-		($limits['backlog'])
+		( $limits['backlog'] )
 			? mailster_notice( sprintf( __( 'You have %1$s mails in your Backlog! %1$s', 'mailster-mandrill' ), '<strong>' . $limits['backlog'] . '</strong>', '<a href="http://eepurl.com/rvxGP" class="external">' . __( 'What is this?', 'mailster-mandrill' ) . '</a>' ), 'error', true, 'mandrill_backlog' )
 			: mailster_remove_notice( 'mandrill_backlog' );
 
@@ -782,7 +773,6 @@ class MailsterMandrill {
 				wp_schedule_event( time(), 'hourly', 'mailster_mandrill_cron' );
 			}
 		}
-
 	}
 
 
@@ -805,9 +795,7 @@ class MailsterMandrill {
 				wp_unschedule_event( $timestamp, 'mailster_mandrill_cron' );
 			}
 		}
-
 	}
-
 }
 
 new MailsterMandrill();
